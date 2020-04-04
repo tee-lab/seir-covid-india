@@ -1,6 +1,6 @@
 ### Code written by Pranav Minasandra from 30 Mar to 4 April
+### at IISc, in the middle of the coronavirus pandemic and lockdown,
 ### in collaboration with Vishwesha Guttal.
-### Let us know if you use this code.
 
 ################# Basic Stuff
 library(shiny)
@@ -73,7 +73,6 @@ params <- c(
 	OldSevereMortRate =1/Tau_c * (f_c_old)/P_c
 )
 
-### Empirically observed data (defunct largely)
 kar_data <- c(7,8,11,14,15,15,20,26,
           33,41,51,55,64,76,83,88,101,110)
 mah_data <- c(33,39,41,45,48,52,64,74,97,107,
@@ -83,14 +82,7 @@ tn_data <- c(1,1,1,1,3,3,6,7,9,15,
 in_data <- c(97,107,118,137,151,173,223,283,
              360,434,519, 606, 694, 834, 918, 1024,1251,1397,1834,2069)
 
-kar_ori <- as.Date('150320', format='%d%m%y')
-mah_ori <- as.Date('150320', format='%d%m%y')
-in_ori <- as.Date('150320', format='%d%m%y')
-tn_ori <- as.Date('150320', format='%d%m%y')
-kl_ori <- tn_ori
-
-### Derivative functions
-tot_pop <- TOT_POP #Remnant of old code. Keep intact.
+tot_pop <- TOT_POP
 none_der_statevector <- function(t, vars, params){
   with(as.list(c(vars,params)),{
   return(list(c(
@@ -391,11 +383,9 @@ lockdown_der_statevector <- function(t, vars, params){
       )))
   })
 }
-
-### UI
 ui <- fluidPage(
   theme = shinythemes::shinytheme("darkly"),
-  titlePanel("IISc COVID-19 Age-Structured SEIR Model"),
+  titlePanel("COVID-19 Age-Structured SEIR Model"),
   
   sidebarLayout(
     
@@ -405,16 +395,16 @@ ui <- fluidPage(
       radioButtons(
         "quar",
         "Intervention measures",
-        c("Full-scale lockdown"="lockdown", 
-          "Senior citizens home-quarantined"="symquar", 
+        c("Quarantine vulnerable"="symquar",
+          "Lockdown"="lockdown", 
           "None"="none")
       ),
       sliderInput("dur", "Days plotted",
-                  min=Sys.Date()-5,max=as.Date('150520', format='%d%m%y'),step=5,value=as.Date('200420',format='%d%m%y')),
-      sliderInput("lockdowndur", "Days of lockdown",
+                  min=as.Date('150320', format='%d%m%y'),max=as.Date('150520', format='%d%m%y'),step=5,value=as.Date('200420',format='%d%m%y')),
+      sliderInput("lockdowndur", "Days of lockdown (NA for quaratine vulnerable)",
                   min=0,max=50,value = c(lockdown_duration)),
       sliderInput("lockdowneff", "Intervention Effectiveness", min=0.0, max=1.0, value = lockdown_effectiveness),
-      helpText("By what proportion are transmission rates reduced by staying home only?"),
+      helpText("(By what proportion are transmission rates reduced by the intervention?)"),
       br(),
       selectInput(
         "state",
@@ -447,13 +437,18 @@ ui <- fluidPage(
 		tabPanel("Caveats",tags$iframe(style="height:600px; width:100%", src="Caveats.pdf")),
 		tabPanel("FAQs & Report", tags$iframe(style="height:600px; width:100%", src="FAQ.pdf")),
 		tabPanel("About", 
+		         h2("Codes"),
+		         p("All codes are available at our",
+		           a("GitHub repository.", href="https://github.com/tee-lab/seir-covid-india"), 
+		           "and is available via", a("CC-BY-SA-4.0 licence.",href="https://creativecommons.org/licenses/by-sa/4.0/" )),
+		         br(),
 		         h2("The authors"),
-		         p("This work was completed by",
-		         a("Vishwesha Guttal", href = "http://teelabiisc.wordpress.com/"),
-		         "and",
+		         p("This app was created by",
 		         a("Pranav Minasandra", href="https://pminasandra.weebly.com/"),
-		         "from the Indian Institute of Science, Bangalore, India."
-		         ),
+		           "a BS-MS student from the Centre for Ecological Sciences (CES), 
+		            Indian Institute of Science (IISc), Bengaluru, India, working with 
+		            Vishwesha Guttal (CES, IISc) and with critical inputs from Prateek Sharma (Department of Physics, IISc) 
+		         and Shivakumar Jolad (FLAME University, Pune)"),
 		         br(),
 		         h2("Short summary"),
 		         p("In this small age-stuctured SEIR model, we consider the states of 
@@ -465,13 +460,9 @@ ui <- fluidPage(
 		           forecasting.")),br(),
 		         h2("Inspirations"),
 		         p("There are several different models that served as inspiration for this one,
-		           including",
+		           but in particular",
 		           a("Alison Hill's model", href="https://alhill.shinyapps.io/COVID19seir/"),
-		           "and", a("Joshua Weitz's model.", href="https://github.com/jsweitz/covid-19-ga-summer-2020")),
-		         br(),
-		         h2("Code availability"),
-		         p("All code used in this app is available on",
-		           a("github", href="https://github.com/tee-lab/AS-SEIR-COVID19-India/"))
+		           "and", a("Joshua Weitz's model.", href="https://github.com/jsweitz/covid-19-ga-summer-2020"))
 		         )
           #tabPanel("Cumulative Infections", plotOutput("plot_ci")),
           
@@ -490,8 +481,11 @@ ui <- fluidPage(
 #  else{return(1)}
 #}
 
-
-### Server
+kar_ori <- as.Date('150320', format='%d%m%y')
+mah_ori <- as.Date('150320', format='%d%m%y')
+in_ori <- as.Date('150320', format='%d%m%y')
+tn_ori <- as.Date('150320', format='%d%m%y')
+kl_ori <- tn_ori
 server <- function(input, output){
 
 d <- reactive({
@@ -585,25 +579,28 @@ output$plot_ih <- renderPlot({
   dates <- ori + out$time
   plot(out$I_h_young + out$I_h_old ~ dates, 
        col="blue", type='l', 
-       xlab="", ylab="Population size", 
-       main=" Hospitalised Individuals",
+       xlab="", ylab="Hospitalised Individuals", 
+       main="Hospitasations",
        xaxt="n",
-       lwd=1.5)
+       lwd=3.0)
   if(input$quar=="lockdown"){
     abline(v=lockdown_begin_date)
     abline(v=lockdown_begin_date + input$lockdowndur)
-    
   }
   if(input$quar != "none"){
     t <- seq(0, as.double(input$dur - ori), by=1)
     recompute_init_vals()
     init_vals[2:4] <- init_vals[2:4]*e_data[1]
     out2 <- data.frame(ode(y=init_vals, func=none_der_statevector, times=t, parms=params))
-    points(out2$I_h_young + out2$I_h_old ~ dates, type='l', col='blue', lty='dotted')
+    points(out2$I_h_young + out2$I_h_old ~ dates, type='l', col='blue', lty='dotted',lwd=3)
   }
   axis(1, dates, format(dates, '%d/%m'), cex.axis=0.6)
+  legend("topleft",
+    col="blue",
+         lty=c("solid", "dotted"),
+         legend=c("No intervention", "With intervention"),
+         lwd=3.0)
 })
-
 
 output$plot_cis <- renderPlot({
   out <<- d()
@@ -613,8 +610,13 @@ output$plot_cis <- renderPlot({
        xlab="", ylab="Population size", 
        main=" Cumulative Symptomatic Individuals",
        xaxt="n",
-       lwd=1.5)
+       lwd=3.0)
   axis(1, dates, format(dates, '%d/%m'), cex.axis=0.6)
+  legend("topleft",
+        col="red",
+         lty=c("solid", "dotted"),
+         legend=c("No intervention", "With intervention"),
+         lwd=3.0)
   if(input$quar=="lockdown"){
     abline(v=lockdown_begin_date)
     abline(v=lockdown_begin_date + input$lockdowndur)
@@ -624,7 +626,7 @@ output$plot_cis <- renderPlot({
     recompute_init_vals()
     init_vals[2:4] <- init_vals[2:4]*e_data[1]
     out2 <- data.frame(ode(y=init_vals, func=none_der_statevector, times=t, parms=params))
-    points(out2$CumInf_S ~ dates, type='l', col='red', lty='dotted')
+    points(out2$CumInf_S ~ dates, type='l', col='red', lty='dotted',lwd=3)
   }
 })
 
@@ -640,10 +642,6 @@ output$captionr0 <- renderText({
   }
 })
 
-
-#output$faqviewer <- renderText({
-#  return(paste('<iframe style="height:600px; width:100%" src="', './', '"></iframe>', sep = ""))
-#})
 }
 
 shinyApp(ui, server)

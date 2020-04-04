@@ -1,0 +1,12 @@
+name: seir-agestr-covid
+title: seir-agestr-covid
+username:
+account: guttal
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2056355
+bundleId: 2968278
+url: https://guttal.shinyapps.io/seir-agestr-covid/
+when: 1586005909.64939
+asMultiple: FALSE
+asStatic: FALSE
