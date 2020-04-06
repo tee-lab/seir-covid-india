@@ -421,33 +421,122 @@ ui <- fluidPage(
       ),
     
       mainPanel(
-        h3(textOutput("captionr0", container = span)),br(),
+        #h3(textOutput("captionr0", container = span)),br(),
         tabsetPanel(
           type="tabs",
 		#tabPanel("Susceptible", plotOutput("plot_s")),
 		#tabPanel("Exposed", plotOutput("plot_e")),
-		tabPanel("Symptomatic Infections", plotOutput("plot_cis")),
+		tabPanel("Introduction", 
+		         h2("Caveats"),
+		         p("We begin with a caveat, which is really important during the times of an ongoing epidemic. 
+		         
+		         The model of covid-19 that we show is simple, ignores many features of real disease 
+		         dynamics and demographic features of Indian population. 
+		         
+             Hence, it is to be used only for understanding concepts but NOT for 
+		         making quantitative forecasts about the pandemic." ),
+		         br(),
+		         h2("A mathematical model"),
+		         p("The purpose of this R-Shiny-App is to get a 'hands-on' feeling of how the 
+		         epidemic grows. We can also try to understand how intervention measures (e.g. quarantine, lockdown) help reduce the growth of disease."),
+		         br(),
+		         p("To do this, we use a simple mathematical model - which are simplistic representations of 
+		           real world scenario to make predictions and get useful insights."),
+		         br(),
+		         p("We know that novel coronavirus affects younger (usually less than 60 years) and older population
+		           differently, with the older being much vulberable. So, we assume that population consists of two types of individuals: fit and vulnerable."),
+		         br(),
+		         p("We assume that all individuals are susceptible (S) to the disease. Over time, they may become exposed (E) to virus 
+		           because they came in contact with a sick person. After a while these exposed individuals become infected (I) with virus."),
+		         br(),
+		         p("We now know that covid-19 can infect different people in different ways. Some never show symptoms and recover (R). 
+		           Some recover with mild illness. However, some of them become quite sick and may need hospitalisation and ICU. Some of these may even die (D)."),
+		         br(),
+		         p("We incorporate all these features of the disease via mathematical equations. Such models are SEIR models. 
+		           We then solve them using computers (see Report for technical details)."),
+		         br(),
+		         h2("Using the App"),
+		         p("Using this app, you can see what happens to epidemic when the virus is left to itself, with no interventions. 
+		           And how the situation can improve with interventions."),
+		         br(),
+		         p("To do this, go to Symptomatic infections, where you see a plot of total infected individuals (who also show symptoms) over time. 
+		           You can chose three different 'Interevention measures' on the left panel."),
+		         br(),
+		         p("Quarantine the vulnerable means that vulnerable (elderly and those with other health issues) minimise
+		           contact with rest of the population."),
+		         br(),
+		         p("Lockdown means that the entire population shows physical distancing, and minimizes interactions."),
+		         br(),
+		         p("Intervention effectiveness is a heuristic for how effectively you think people will follow the rules 
+		           or advisory of the government."),
+		         br(),
+		         h2("Flattening the curve"),
+		         p("By now you may hvae heard of flatten the curve. It just means that slow down the spread of disease."),
+		         br(),
+		         p("Chose 'Lockdown' as the intervention measure. You will see two curves in both Infections and Hospitalisation tabs.
+		           You will see that the steepness of these curves is smaller when intervention is present"),
+		          br(), 
+		          p("Play with sliding bars on the left panel to change how effective the interventions are. Observe how it affects the curves")
+		         ),
+		tabPanel("Total Infections", plotOutput("plot_cis")),
           #tabPanel("Asymptomatic Infections", plotOutput("plot_ia")),
-          #tabPanel("Symptomatic Infections", plotOutput("plot_is")),
-          tabPanel("Hospitalisations", plotOutput("plot_ih")),
+          #tabPanel("Infections", plotOutput("plot_is")),
+    tabPanel("Hospitalisations", plotOutput("plot_ih")),
           #tabPanel("ICU Patients", plotOutput("plot_ic")),
           #tabPanel("Recoveries", plotOutput("plot_r")),
           #tabPanel("Deaths", plotOutput("plot_d")),
 		#tabPanel("Documented Cases", plotOutput("plot_em")),
-		tabPanel("Caveats",tags$iframe(style="height:600px; width:100%", src="Caveats.pdf")),
-		tabPanel("FAQs & Report", tags$iframe(style="height:600px; width:100%", src="FAQ.pdf")),
+		#tabPanel("Caveats",tags$iframe(style="height:600px; width:100%", src="Caveats.pdf")),
+		tabPanel("Technical Report", tags$iframe(style="height:600px; width:100%", src="age-seir-covid-report.pdf")),
+		tabPanel("FAQ",
+		         h2("FAQ"), 
+		         h3("Disclaimer"),
+		         p("This model is simple, ignores many features of real disease dynamics and demographic features of Indian
+population. Hence, it is to be used only for understanding concepts but NOT for making quantitative
+forecasts about the pandemic."),
+		         h3("What is the use of this model?"),
+		         p("This model can be used to understand how the epidemic spreads 
+		         without and with interventions. Specically, we incorporate two types of 
+		         interventions  one where the vulnerable population is isolated and the
+              other is the complete lockdown. 
+              Therefore, we can investigate how different types of physical distancing
+              and their effectiveness affects disease spread."),
+		         br(),
+            p("Tab 2 (Total Infections), one can view the total number of individuals who have been."),
+		         br(),
+		         p("The model illustrates the role of incubation time, which provides the disease a sort of inertia."),
+		         br(),
+		         p("On Tab 3 (Hospitalisations), we show the number of hospitalised individuals - based on our model
+analysis. There is a gap between when a person gets infected and when she/he is brought to a hospital;
+therefore, we see that this number reacts slowly to a lockdown. This eect could be seen in reality as
+well."),
+		         h3("Can I use these results of your model for policy in specific states of India?"),
+		         p("No. This model is for illustrative purposes only, and should not be used for quantitative forecasting."),
+		         h3("Can I play with the code for this model?"),
+		         p("Yes, please. The code for this model is available at 
+		         our GitHub repository (https://github.com/tee-lab/seir-covid-india) and is available via CC-BY-SA-4.0 licence (i.e, use, modify but credit our work and share using the same license.  
+		         If you have any questions regarding the modelling approaches used, please send a well-drafted email to pranavm@iisc.ac.in"),
+		         h3("Why don't you show actually observed data anywhere?"),
+		         p("Empirical data is subject to the dynamics of societal awareness of the disease, testing rates, stochasticity,
+and other numbers. Data from tests conducted do not represent all cases of infections, due to 
+somewhat restrictive testing protocol followed by the ICMR. In contrast, our model depicts all cases -- and hence will be much larger
+shown by real data. Therefore, showing data together with model results in our plots could have been misleading. 
+Moveover, there are many online sources where real data
+are beautifully shown. We therefore refrain from showing this data."),
+		         ),
 		tabPanel("About", 
 		         h2("Codes"),
 		         p("All codes are available at our",
-		           a("GitHub repository.", href="https://github.com/tee-lab/seir-covid-india"), 
+		           a("GitHub repository", href="https://github.com/tee-lab/seir-covid-india"), 
 		           "and is available via", a("CC-BY-SA-4.0 licence.",href="https://creativecommons.org/licenses/by-sa/4.0/" )),
 		         br(),
 		         h2("The authors"),
 		         p("This app was created by",
 		         a("Pranav Minasandra", href="https://pminasandra.weebly.com/"),
-		           "a BS-MS student from the Centre for Ecological Sciences (CES), 
-		            Indian Institute of Science (IISc), Bengaluru, India, working with 
-		            Vishwesha Guttal (CES, IISc) and with critical inputs from Prateek Sharma (Department of Physics, IISc) 
+		           "a BS-MS student from the Centre for Ecological Sciences (CES)
+		            Indian Institute of Science (IISc), Bengaluru, India, working with", 
+		            a("Vishwesha Guttal (CES, IISc)", href="https://teelab.iisc.ac.in"),
+		         "and with critical inputs from Prateek Sharma (Department of Physics, IISc) 
 		         and Shivakumar Jolad (FLAME University, Pune)"),
 		         br(),
 		         h2("Short summary"),
@@ -580,7 +669,7 @@ output$plot_ih <- renderPlot({
   plot(out$I_h_young + out$I_h_old ~ dates, 
        col="blue", type='l', 
        xlab="", ylab="Hospitalised Individuals", 
-       main="Hospitasations",
+       main="Hospitalisations",
        xaxt="n",
        lwd=3.0)
   if(input$quar=="lockdown"){
@@ -597,7 +686,7 @@ output$plot_ih <- renderPlot({
   axis(1, dates, format(dates, '%d/%m'), cex.axis=0.6)
   legend("topleft",
     col="blue",
-         lty=c("solid", "dotted"),
+         lty=c("dotted","solid"),
          legend=c("No intervention", "With intervention"),
          lwd=3.0)
 })
@@ -614,8 +703,8 @@ output$plot_cis <- renderPlot({
   axis(1, dates, format(dates, '%d/%m'), cex.axis=0.6)
   legend("topleft",
         col="red",
-         lty=c("solid", "dotted"),
-         legend=c("No intervention", "With intervention"),
+         lty=c( "dotted","solid"),
+         legend=c("No intervention","With intervention"),
          lwd=3.0)
   if(input$quar=="lockdown"){
     abline(v=lockdown_begin_date)
@@ -630,17 +719,17 @@ output$plot_cis <- renderPlot({
   }
 })
 
-output$captionr0 <- renderText({
-  if(input$quar=="none"){
-    paste("R_0 =", round(P_a*BASAL_TRANSMISSION_RATE*Tau_a + P_s*BASAL_TRANSMISSION_RATE*2*Tau_s,3))
-  }
-  else if(input$quar=="symquar"){
-    paste("R_0 =", round(P_a*BASAL_TRANSMISSION_RATE*(Tau_a*(PROP_YOUNG*(input$lockdowneff) + 1 - input$lockdowneff)) + P_s*BASAL_TRANSMISSION_RATE*2*Tau_s*(PROP_YOUNG*(input$lockdowneff) + 1 - input$lockdowneff),3))
-  }
-  else if(input$quar=="lockdown"){
-    paste("R_0 =", (1-input$lockdowneff)*round(P_a*BASAL_TRANSMISSION_RATE*Tau_a + P_s*BASAL_TRANSMISSION_RATE*2*Tau_s,3))
-  }
-})
+# output$captionr0 <- renderText({
+#   if(input$quar=="none"){
+#     paste("R_0 =", round(P_a*BASAL_TRANSMISSION_RATE*Tau_a + P_s*BASAL_TRANSMISSION_RATE*2*Tau_s,3))
+#   }
+#   else if(input$quar=="symquar"){
+#     paste("R_0 =", round(P_a*BASAL_TRANSMISSION_RATE*(Tau_a*(PROP_YOUNG*(input$lockdowneff) + 1 - input$lockdowneff)) + P_s*BASAL_TRANSMISSION_RATE*2*Tau_s*(PROP_YOUNG*(input$lockdowneff) + 1 - input$lockdowneff),3))
+#   }
+#   else if(input$quar=="lockdown"){
+#     paste("R_0 =", (1-input$lockdowneff)*round(P_a*BASAL_TRANSMISSION_RATE*Tau_a + P_s*BASAL_TRANSMISSION_RATE*2*Tau_s,3))
+#   }
+# })
 
 }
 
